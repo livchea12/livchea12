@@ -37,16 +37,9 @@
 
 ## 🌐 Contact
 
-<p align="center">
-  <a href="https://github.com/livchea12">
-    <img src="https://img.shields.io/badge/GitHub-000?style=for-the-badge&logo=github" />
-  </a>
-
-  <a href="mailto:Chealivchea@gmail.com">
-    <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail" />
-  </a>
-</p>
-
+- 📧 Email: chealivchea@gmail.com  
+- 💼 LinkedIn: https://www.linkedin.com/in/chea-livchea-73827b2ba  
+- 💬 Telegram: @Livchea
 ---
 
 ⭐ From Chea | Backend Developer
