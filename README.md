@@ -37,9 +37,9 @@
 
 ## 🌐 Contact
 
-- 📧 Email: chealivchea@gmail.com  
-- 💼 LinkedIn: https://www.linkedin.com/in/chea-livchea-73827b2ba  
-- 💬 Telegram: @Livchea
----
+- 📧 Email: [chealivchea@gmail.com](mailto:chealivchea@gmail.com)  
+- 💼 LinkedIn: [Chea Livchea](https://www.linkedin.com/in/chea-livchea-73827b2ba)  
+- 💬 Telegram: [@Livchea](https://t.me/Livchea)
+
 
 ⭐ From Chea | Backend Developer
