@@ -35,6 +35,14 @@
 
 ---
 
+## 🐍 Contribution Snake
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/livchea12/livchea12/output/github-contribution-grid-snake-dark.svg" />
+</p>
+
+---
+
 ## 🌐 Contact
 
 - 📧 Email: [chealivchea@gmail.com](mailto:chealivchea@gmail.com)  
