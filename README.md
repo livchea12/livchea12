@@ -26,12 +26,17 @@
 ## 📊 GitHub Stats
 
 <p align="center">
-  <img width="420" src="https://github-readme-stats.vercel.app/api?username=livchea12&show_icons=true&theme=tokyonight&hide_border=true" />
+  <img width="420"
+    src="https://github-readme-stats.vercel.app/api?username=livchea12&show_icons=true&theme=tokyonight&hide_border=true&cache_seconds=86400"
+  />
 </p>
 
 <p align="center">
-  <img width="420" src="https://github-readme-streak-stats.herokuapp.com/?user=livchea12&theme=tokyonight&hide_border=true" />
+  <img width="420"
+    src="https://streak-stats.demolab.com/?user=livchea12&theme=tokyonight&hide_border=true&cache_seconds=86400"
+  />
 </p>
+
 
 ---
 
