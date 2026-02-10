@@ -22,7 +22,10 @@ jobs:
           github_user_name: livchea12
           outputs: dist/github-contribution-grid-snake-dark.svg
           svg_out_size: 960_120
-          palette: github-dark
+          color_snake: "#58a6ff"
+          color_dots: "#30363d"
+          color_empty: "#161b22"
+          color_background: "#0d1117"
 
       - name: Push generated svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3
