@@ -1,49 +1,33 @@
 name: Generate Snake Animation
 on:
   schedule:
-    - cron: "0 */12 * * *"  # Runs every 12 hours
-  workflow_dispatch:  # Allows manual trigger
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          
+
       - name: Generate snake animation
         uses: Platane/snk@v3
         with:
           github_user_name: livchea12
           outputs: |
-            dist/github-contribution-grid-snake-dark.svg
-            dist/github-contribution-grid-snake-dark.gif?palette=github-dark
-            dist/github-contribution-grid-snake.svg
-          
-          # Snake appearance
-          color_snake: "#00ff41"  # Bright green snake (Matrix-style)
-          color_dots_0: "#161b22"  # Empty cells - darkest
-          color_dots_1: "#0e4429"  # Low contributions - dark green
-          color_dots_2: "#006d32"  # Medium-low - medium green
-          color_dots_3: "#26a641"  # Medium-high - bright green
-          color_dots_4: "#39d353"  # High contributions - brightest green
-          
-          # Background styling
-          color_background: "#0d1117"  # GitHub dark background
-          
-          # Animation settings
-          svg_out_size: "1200_400"  # Wider and taller for better visibility
-          
-      - name: Push generated files to output branch
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark&color_snake=%2300ff41&color_dots=%230d1117,%230e4429,%23006d32,%2326a641,%2339d353
+
+      - name: Push generated svg to the output branch
         uses: crazy-max/ghaction-github-pages@v3
         with:
           target_branch: output
           build_dir: dist
-          commit_message: "Update Contribution Snake 🐍"
+          commit_message: "Generate Contribution Snake 🐍"
           keep_history: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
