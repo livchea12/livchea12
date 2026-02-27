@@ -40,7 +40,7 @@
 ## 🐍 Contribution Snake
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/livchea12/livchea12/output/github-contribution-grid-snake-dark.svg" />
+   <img src="https://raw.githubusercontent.com/livchea12/livchea12/output/github-contribution-grid-snake-grow.gif" alt="snake gif" />
 </p>
 
 ---
