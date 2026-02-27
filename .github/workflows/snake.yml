@@ -1,4 +1,4 @@
-name: Generate Growing Snake
+name: Generate Better Growing Snake
 
 on:
   schedule:
@@ -15,8 +15,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Build true-growing snake GIF
+      - name: Build snake GIF
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USER_NAME: livchea12
@@ -25,10 +27,9 @@ jobs:
           pip install pillow requests
           mkdir -p dist
           python - << 'PY'
-          import os
-          import datetime as dt
-          import requests
+          import os, random, datetime as dt
           from collections import deque
+          import requests
           from PIL import Image, ImageDraw
 
           USER = os.environ["GITHUB_USER_NAME"]
@@ -41,7 +42,6 @@ jobs:
                 contributionCalendar {
                   weeks {
                     contributionDays {
-                      date
                       contributionCount
                       weekday
                     }
@@ -51,6 +51,7 @@ jobs:
             }
           }
           """
+
           to_date = dt.datetime.utcnow()
           from_date = to_date - dt.timedelta(days=370)
 
@@ -68,64 +69,112 @@ jobs:
             timeout=30,
           )
           r.raise_for_status()
-          data = r.json()
-          weeks = data["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
+          weeks = r.json()["data"]["user"]["contributionsCollection"]["contributionCalendar"]["weeks"]
 
           cols = len(weeks)
           rows = 7
           grid = [[0 for _ in range(rows)] for _ in range(cols)]
-
           for x, w in enumerate(weeks):
               for d in w["contributionDays"]:
-                  y = d["weekday"]  # 0..6
-                  grid[x][y] = d["contributionCount"]
+                  grid[x][d["weekday"]] = d["contributionCount"]
 
-          foods = {(x, y) for x in range(cols) for y in range(rows) if grid[x][y] > 0}
-
-          path = []
+          # Food weight = contribution count (cap to avoid giant snake)
+          food_weight = {}
           for x in range(cols):
-              ys = range(rows) if x % 2 == 0 else range(rows - 1, -1, -1)
-              for y in ys:
-                  path.append((x, y))
+              for y in range(rows):
+                  c = grid[x][y]
+                  if c > 0:
+                      food_weight[(x, y)] = min(c, 6)
 
-          snake = deque(path[:3])
-          frames = []
+          dirs = [(1,0),(-1,0),(0,1),(0,-1)]
 
-          # visuals (GitHub dark-like)
-          bg = (13, 17, 23)
-          dot0 = (22, 27, 34)
-          dot1 = (14, 68, 41)
-          dot2 = (0, 109, 50)
-          dot3 = (38, 166, 65)
-          dot4 = (57, 211, 83)
-          snake_c = (57, 211, 83)
+          def neighbors(p):
+              x, y = p
+              for dx, dy in dirs:
+                  nx, ny = x + dx, y + dy
+                  if 0 <= nx < cols and 0 <= ny < rows:
+                      yield (nx, ny)
 
-          cell = 14
-          gap = 4
-          pad = 20
+          def bfs_next(start, targets, blocked):
+              q = deque([start])
+              prev = {start: None}
+              found = None
+              while q:
+                  cur = q.popleft()
+                  if cur in targets:
+                      found = cur
+                      break
+                  for nb in neighbors(cur):
+                      if nb in prev or nb in blocked:
+                          continue
+                      prev[nb] = cur
+                      q.append(nb)
+              if found is None:
+                  return None
+              cur = found
+              while prev[cur] is not None and prev[cur] != start:
+                  cur = prev[cur]
+              return cur
+
+          # start near center
+          sx, sy = cols // 2, rows // 2
+          snake = deque([(sx - 2, sy), (sx - 1, sy), (sx, sy)])
+          snake = deque([(max(0, min(cols-1,x)), max(0, min(rows-1,y))) for x,y in snake])
+
+          # render setup
+          scale = 3
+          cell, gap, pad = 12 * scale, 3 * scale, 16 * scale
           W = pad * 2 + cols * cell + (cols - 1) * gap
           H = pad * 2 + rows * cell + (rows - 1) * gap
 
+          bg = (13, 17, 23)
+          d0 = (22, 27, 34)
+          d1 = (14, 68, 41)
+          d2 = (0, 109, 50)
+          d3 = (38, 166, 65)
+          d4 = (57, 211, 83)
+          snake_c = (80, 230, 110)
+          head_c = (170, 255, 180)
+
           def dot_color(n):
-              if n <= 0: return dot0
-              if n < 3: return dot1
-              if n < 6: return dot2
-              if n < 10: return dot3
-              return dot4
+              if n <= 0: return d0
+              if n < 3: return d1
+              if n < 6: return d2
+              if n < 10: return d3
+              return d4
 
-          idx = 3
-          max_steps = len(path) * 4
-          for _ in range(max_steps):
-              head = path[idx % len(path)]
-              idx += 1
-              snake.append(head)
+          frames = []
+          steps = cols * rows * 6
 
-              grew = False
-              if head in foods:
-                  foods.remove(head)
-                  grew = True
+          for _ in range(steps):
+              head = snake[-1]
+              blocked = set(snake)
+              targets = set(food_weight.keys())
 
-              if not grew:
+              nxt = None
+              if targets:
+                  if random.random() < 0.14:
+                      cands = [p for p in neighbors(head) if p not in blocked]
+                      if cands:
+                          nxt = random.choice(cands)
+                  if nxt is None:
+                      nxt = bfs_next(head, targets, blocked)
+
+              if nxt is None:
+                  cands = [p for p in neighbors(head) if p not in blocked]
+                  if not cands:
+                      break
+                  nxt = random.choice(cands)
+
+              snake.append(nxt)
+
+              # true growth by contribution count
+              if nxt in food_weight:
+                  grow = food_weight.pop(nxt)
+                  # already grew by +1 via append, add remaining
+                  for _ in range(max(0, grow - 1)):
+                      snake.appendleft(snake[0])
+              else:
                   snake.popleft()
 
               im = Image.new("RGB", (W, H), bg)
@@ -135,36 +184,43 @@ jobs:
                   for y in range(rows):
                       px = pad + x * (cell + gap)
                       py = pad + y * (cell + gap)
-                      dr.rounded_rectangle([px, py, px + cell, py + cell], radius=3, fill=dot_color(grid[x][y]))
+                      dr.rounded_rectangle([px, py, px + cell, py + cell], radius=4*scale, fill=dot_color(grid[x][y]))
 
-              for (x, y) in snake:
+              for x, y in snake:
                   px = pad + x * (cell + gap)
                   py = pad + y * (cell + gap)
-                  dr.rounded_rectangle([px, py, px + cell, py + cell], radius=4, fill=snake_c)
+                  dr.rounded_rectangle([px, py, px + cell, py + cell], radius=5*scale, fill=snake_c)
 
               hx, hy = snake[-1]
               px = pad + hx * (cell + gap)
               py = pad + hy * (cell + gap)
-              dr.rounded_rectangle([px, py, px + cell, py + cell], radius=4, fill=(140, 255, 170))
+              dr.rounded_rectangle([px, py, px + cell, py + cell], radius=5*scale, fill=head_c)
 
+              # downscale for smoother look
+              im = im.resize((W // scale, H // scale), Image.Resampling.LANCZOS)
               frames.append(im)
 
-              if not foods:
-                  for _ in range(20):
+              if not food_weight:
+                  for _ in range(16):
                       frames.append(im.copy())
                   break
 
           out = "dist/github-contribution-grid-snake-grow.gif"
-          frames[0].save(out, save_all=True, append_images=frames[1:], duration=70, loop=0, optimize=False)
-          print(f"wrote {out}")
+          frames[0].save(
+            out,
+            save_all=True,
+            append_images=frames[1:],
+            duration=75,
+            loop=0,
+            optimize=False
+          )
+          print(f"Generated: {out}")
           PY
 
-      - name: Push to output branch
-        uses: crazy-max/ghaction-github-pages@v3
-        with:
-          target_branch: output
-          build_dir: dist
-          commit_message: "Generate true-growing contribution snake"
-          keep_history: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push GIF to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/github-contribution-grid-snake-grow.gif
+          git commit -m "Update growing snake gif" || echo "No changes"
+          git push
