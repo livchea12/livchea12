@@ -50,7 +50,7 @@
 - 📧 Email: [chealivchea@gmail.com](mailto:chealivchea@gmail.com)  
 - 💼 LinkedIn: [Chea Livchea](https://www.linkedin.com/in/chea-livchea-73827b2ba)  
 - 💬 Telegram: [@Livchea](https://t.me/Livchea)
-- 🪪 [Portfolio](https://chealivchea.vercel.app/)
+- 🪪 Portfolio: https://chealivchea.vercel.app/
 
 
 ⭐ From Chea | Backend Developer
